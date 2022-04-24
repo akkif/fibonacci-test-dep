@@ -1,0 +1,21 @@
+sudo: required
+services:
+  - docker
+before_install: 
+  - docker build -t akif/react-test -f ./client/Dockerfile.dev ./client
+
+script: 
+  - docker run akif/react-test npm test -- --coverage
+
+after_success: 
+  - docker build -t akifboi/multi-client ./client
+  - docker build -t akifboi/multi-nginx ./nginx
+  - docker build -t akifboi/multi-server ./server
+  - docker build -t akifboi/multi-worker ./worker
+#login
+ - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+#take codes and push em to doc hub
+ - docker push akifboi/multi-client
+ - docker push akifboi/multi-nginx
+ - docker push akifboi/multi-server
+ - docker push akifboi/multi-worker
